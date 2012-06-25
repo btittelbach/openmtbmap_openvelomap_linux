@@ -61,7 +61,7 @@ else
     print "\nERROR: not a openmtbmap.org or openvelomap.org file ?"
     usage
 fi    
-DSTFILENAME="${OMTB_EXE:h}/${OMTBORVELO}_${OMTB_NAME}.img"
+DSTFILENAME="${OMTB_EXE:A:h}/${OMTBORVELO}_${OMTB_NAME}.img"
 DESC="${OMTBORVELO}_${OMTB_NAME}"
 
 
@@ -117,7 +117,7 @@ if [[ -n $MKGMAP && -f $MKGMAP ]]; then
     print "using mkgmap, building address search index..."
     #java -Xmx1000M -jar mkgmap.jar --family-id=$FID --index --description="$DESC" --series-name="$DESC" --family-name="$DESC" --show-profiles=1  --product-id=1 --gmapsupp 6*.img 7*.img 01002468.TYP
     java -Xmx3000M -jar "$MKGMAP" --family-id=$FID --index --description="$DESC" --series-name="$DESC" --family-name="$DESC" --show-profiles=1  --product-id=1 --gmapsupp [67]*.img 01002468.TYP || exit 7
-    mv (#i)gmapsupp.img "${DSTFILENAME}"
+    mv (#i)gmapsupp.img "${DSTFILENAME}" || exit 7
 else
     print "mkgmap not found, using gmt..."
     $GMT_CMD -j -o "${DSTFILENAME}" -f $FID -m "$DESC" 6*.img 7*.img 01002468.TYP || exit 7
