@@ -1,0 +1,35 @@
+__NOTOC__
+= Linux/Unix script to compile garmin *.img map files from openmtbmap.org or openvelomap.org files =
+
+=== Requirements ===
+
+* zsh
+* 7z
+* mkgmap OR wine
+* gmt linux version OR wine
+
+you can obtain mkgmap with your package manager or from http://www.mkgmap.org.uk/snapshots/
+
+gmt linux version can be downloaded from http://www.anpo.republika.pl/download.html
+
+==== Installation of required files on Debian/Ubuntu ====
+
+  sudo apt-get install zsh 7z mkgmap
+  wget http://www.anpo.republika.pl/files/lgmt07158.zip
+  unzip lgmt07158.zip gmt
+  sudo mv gmt /usr/local/bin/
+
+=== Usage ===
+
+ Usage: create_omtb_garmin_img.sh <mtb*.exe|velo*.exe> <TYP-file or TYP-type> [path/to/mkgmap.jar]
+       as TYP-type you can choose:
+       clas: classic layout - optimized for Vista/Legend series
+       thin: thinner tracks and pathes - optimized for Gpsmap60/76 series
+       wide: high contrast layout, like classic but with white forest - optimized for Oregon/Colorado dull displays
+       hike: like classic layout - but optimized for hiking (does not show mtb/bicycle informations)
+       easy: similar to classic layout - but focussed on easy readability hence not showing mtb/bicycle information except routes
+       velo: (comes with velomap files) Layout optimized for small GPS screen
+       or give the path to your own .TYP style file
+       
+       
+
