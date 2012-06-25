@@ -9,9 +9,6 @@
 # - mkgmap (preferred) [http://www.mkgmap.org.uk/snapshots/] OR wine
 # - gmt linux version [ http://www.anpo.republika.pl/download.html ] OR wine
 #
-# on Debian/Ubuntu: 
-# $  sudo apt-get install zsh 7z mkgmap
-# $  wget http://www.anpo.republika.pl/files/lgmt07158.zip; unzip lgmt07158.zip gmt; sudo mv gmt /usr/local/bin/
 
 setopt extendedglob
 setopt cshnullglob

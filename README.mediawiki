@@ -14,10 +14,20 @@ gmt linux version can be downloaded from http://www.anpo.republika.pl/download.h
 
 ==== Installation of required files on Debian/Ubuntu ====
 
-  sudo apt-get install zsh 7z mkgmap
+  sudo apt-get install zsh 7z
   wget http://www.anpo.republika.pl/files/lgmt07158.zip
   unzip lgmt07158.zip gmt
   sudo mv gmt /usr/local/bin/
+
+also, get newest mkgmap from http://www.mkgmap.org.uk/snapshots/ and install (aka copy) it to e.g. /usr/local/share/mkgmap/
+
+==== Installation of required files on Gentoo ====
+
+  emerge zsh p7zip mkgmap
+  wget http://www.anpo.republika.pl/files/lgmt07158.zip
+  unzip lgmt07158.zip gmt
+  sudo mv gmt /usr/local/bin/
+
 
 === Usage ===
 
