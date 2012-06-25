@@ -33,7 +33,6 @@ usage()
 
 OMTB_EXE="$1"
 TYPFILE="$2"
-OMTB_NAME="${OMTB_EXE:t:r:s/(mtb|velo)/}"
 GMT_CMD==gmt
 TMPDIR=${OMTB_EXE:h}/OMTB_tmp/
 MKGMAP=(${3}(N) /usr/share/mkgmap/mkgmap.jar(N) /usr/local/share/mkgmap/mkgmap.jar(N) ${^path}/mkgmap.jar(N) )
@@ -57,8 +56,10 @@ fi
 
 if [[ ${OMTB_EXE:t} == mtb* ]]; then
     OMTBORVELO=openmtbmap
+    OMTB_NAME="${OMTB_EXE:t:r:s/mtb/}"
 elif [[ ${OMTB_EXE:t} == velo* ]]; then
     OMTBORVELO=openvelomap
+    OMTB_NAME="${OMTB_EXE:t:r:s/velo/}"
 else
     print "\nERROR: not a openmtbmap.org or openvelomap.org file ?"
     usage
