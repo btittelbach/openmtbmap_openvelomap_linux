@@ -15,24 +15,27 @@ setopt cshnullglob
 SCRIPT_NAME=${0:t}
 usage()
 {
-    print "Usage: $SCRIPT_NAME <mtb*.exe|velo*.exe> <TYP-file or TYP-type> [path/to/mkgmap.jar]" > /dev/stderr
-    print "       as TYP-type you can choose:" > /dev/stderr
-    print "       clas: classic layout - optimized for Vista/Legend series" > /dev/stderr
-    print "       thin: thinner tracks and pathes - optimized for Gpsmap60/76 series" > /dev/stderr
-    print "       wide: high contrast layout, like classic but with white forest - optimized for Oregon/Colorado dull displays" > /dev/stderr
-    print "       hike: like classic layout - but optimized for hiking (does not show mtb/bicycle informations)" > /dev/stderr
-    print "       easy: similar to classic layout - but focussed on easy readability hence not showing mtb/bicycle information except routes" > /dev/stderr
-    print "       velo: (comes with velomap files) Layout optimized for small GPS screen" > /dev/stderr
-    print "       or give the path to your own .TYP style file\n" > /dev/stderr
+    print "\nUsage: $SCRIPT_NAME [options] <mtb*.exe|velo*.exe> <TYP-file or TYP-style>" > /dev/stderr
+    print "     as TYP-style you can choose:" > /dev/stderr
+    print "     clas: classic layout - optimized for Vista/Legend series" > /dev/stderr
+    print "     thin: thinner tracks and pathes - optimized for Gpsmap60/76 series" > /dev/stderr
+    print "     wide: high contrast layout, like classic but with white forest - optimized for Oregon/Colorado dull displays" > /dev/stderr
+    print "     hike: like classic layout - but optimized for hiking (does not show mtb/bicycle informations)" > /dev/stderr
+    print "     easy: similar to classic layout - but focussed on easy readability hence not showing mtb/bicycle information except routes" > /dev/stderr
+    print "     velo: (comes with velomap files) Layout optimized for small GPS screen" > /dev/stderr
+    print "     or give the path to your own .TYP style file" > /dev/stderr
+    print "\nOptions:" > /dev/stderr
+    print "     -m <path/to/mkgmap.jar>" > /dev/stderr
+    print "     -o <path/to/outputdir>\n" > /dev/stderr
     exit 1
     # descriptions taken from openmtbmap.org  batch files
 }
 
+zparseopts -A ARGS_A -D -E -- "m:" "o:"
 OMTB_EXE="$1"
 TYPFILE="$2"
 GMT_CMD==gmt
-TMPDIR=${OMTB_EXE:h}/OMTB_tmp/
-MKGMAP=(${3}(N) /usr/share/mkgmap/mkgmap.jar(N) /usr/local/share/mkgmap/mkgmap.jar(N) ${^path}/mkgmap.jar(N) )
+MKGMAP=( ${ARGS_A[-m]}(.N,@-.) /usr/share/mkgmap/mkgmap.jar(.N,@-.) /usr/local/share/mkgmap/mkgmap.jar(.N,@-.) ${^path}/mkgmap.jar(.N,@-.) )
 MKGMAP="${MKGMAP[1]}"
 
 if ! [[ -x $GMT_CMD ]] ; then
@@ -60,10 +63,16 @@ elif [[ ${OMTB_EXE:t} == velo* ]]; then
 else
     print "\nERROR: not a openmtbmap.org or openvelomap.org file ?"
     usage
-fi    
-DSTFILENAME="${OMTB_EXE:A:h}/${OMTBORVELO}_${OMTB_NAME}.img"
+fi
 DESC="${OMTBORVELO}_${OMTB_NAME}"
-
+if [[ -d ${ARGS_A[-o]} ]]; then
+    DSTFILENAME="${ARGS_A[-o]:A}/${DESC}.img"
+    TMPDIR=${ARGS_A[-o]:A}/OMTB_tmp
+else
+    DSTFILENAME="${OMTB_EXE:A:h}/${DESC}.img"
+    TMPDIR=${OMTB_EXE:A:h}/OMTB_tmp
+    [[ -n $ARGS_A[-o] ]] && {print "\nWarning: -o given but ${ARGS_A[-o]} is not a directory.\n         Using ${OMTB_EXE:A:h} instead..\n"}
+fi
 
 if [[ -e $DSTFILENAME ]]; then
     print "\nWarning: the script will create (overwrite) $DSTFILENAME"
@@ -72,48 +81,53 @@ if [[ -e $DSTFILENAME ]]; then
     print ""
 fi
 
-if [[ -d $TMPDIR ]] ; then
-    print "\nWarning: the script will extract $OMTB_EXE to $TMPDIR,"
-    print "         but $TMPDIR exists. If you are continuing after an error and"
-    print "         $TMPDIR was created by a previous run, you may safely press [y]"
-    print "         If not, you should say [n] and delete or backup it first"
-    read -q "?Continue ? [y/N] " || exit 0
-    print ""
-else 
+if [[ -e $TMPDIR ]] ; then
+    print "\nWarning: the script want's to create directory $TMPDIR, but it already exists."
+    if [[ -d $TMPDIR ]] ; then
+        print "         If you press [y], $OMTB_EXE will be extracted"
+        print "         to $TMPDIR regardless of it's contents."
+        print "         That's fine if it was created during a previous abortet run of this script."
+        print "         Otherwise you should say [n] and move $OMTB_EXE into a clean directory."
+        read -q "?Continue ? [y/N] " || exit 0
+        print ""
+    else
+        print "         Please use another output directory and try again."
+        exit 1
+    fi
+else
     mkdir $TMPDIR || exit 1
 fi
 
-FIMG=(${TMPDIR}/6<000-999>0000.img(N))
-if ! [[ -f ${FIMG[1]} ]] ; then 
+FIMG_a=(${TMPDIR}/6<000-999>0000.img(N))
+if [[ -z $FIMG_a ]] ; then
     print "Extracting $OMTB_EXE ..."
     7z x -y -o$TMPDIR ${OMTB_EXE} &>/dev/null || exit 1
-    FIMG=(${TMPDIR}/6<000-999>0000.img(N[1]))
-    [[ -f ${FIMG[1]} ]] || {print "\nERROR, could not find 6*.img file after extracting $OMTB_EXE" >/dev/stderr ; exit 1}
+    FIMG_a=(${TMPDIR}/6<000-999>0000.img(N[1]))
+    [[ -z $FIMG_a ]] && {print "\nERROR, could not find 6*.img file after extracting $OMTB_EXE" >/dev/stderr ; exit 1}
 fi
 if [[ -f $TYPFILE ]] ; then
-    TYPFILE=${TYPFILE:A}
+    TYPFILE="${TYPFILE:A}"
 else
-    TYPFILE=( "${TMPDIR}/"(#i)${TYPFILE}*.typ(N:A))
-    TYPFILE=${TYPFILE[1]}
+    TYPFILE=( "${TMPDIR}/"(#i)${TYPFILE}*.typ(.N:A))
+    TYPFILE="${TYPFILE[1]}"
 fi
 
 trap "cd '$PWD'" EXIT
 cd $TMPDIR || exit 5
-TMPDIR="$PWD"
 
-if ! [[ -n $TYPFILE && -f $TYPFILE ]] ; then
-    print "\nERROR: Typfile $TYPFILE not found" > /dev/stderr
-    print "       please choose your own file or one of these types: "  *.(#l)TYP(N:r)  > /dev/stderr
+if [[ -z $TYPFILE ]] ; then
+    print "\nERROR: TYP-file or -style not found" > /dev/stderr
+    print "       please choose your own file or one of these styles: "  *.(#l)TYP(.N:r)  > /dev/stderr
     exit 2
 fi
 
-print "using display-typefile: $TYPFILE"
+print "using display-TYP-file: $TYPFILE"
 cp $TYPFILE 01002468.TYP || exit 4
-FID=${${FIMG:t}[1][1,4]}
+FID=${${FIMG_a:t}[1][1,4]}
 print using FID $FID
 
 $GMT_CMD -wy $FID 01002468.TYP
-if [[ -n $MKGMAP && -f $MKGMAP ]]; then
+if [[ -n $MKGMAP ]]; then
     print "using mkgmap, building address search index..."
     #java -Xmx1000M -jar mkgmap.jar --family-id=$FID --index --description="$DESC" --series-name="$DESC" --family-name="$DESC" --show-profiles=1  --product-id=1 --gmapsupp 6*.img 7*.img 01002468.TYP
     java -Xmx3000M -jar "$MKGMAP" --family-id=$FID --index --description="$DESC" --series-name="$DESC" --family-name="$DESC" --show-profiles=1  --product-id=1 --gmapsupp [67]*.img 01002468.TYP || exit 7
