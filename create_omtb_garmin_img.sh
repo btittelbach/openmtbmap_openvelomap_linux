@@ -2,6 +2,7 @@
 # License: Creative Commons Share Alike 3.0
 # Copyright: 2012, Bernhard Tittelbach <xro@realraum.at>
 # Thanks to malenki on #osm-de@oftc.net for constructive input and nagging me into making this thing useable in the first place
+# Thanks to Thomas Friebel who fixed some typos and noted that in some extracted openmtbmaps the numbered image files start with 0001 instead of 0000
 
 # Required software:
 # - zsh (obviously)
@@ -98,11 +99,13 @@ else
     mkdir $TMPDIR || exit 1
 fi
 
-FIMG_a=(${TMPDIR}/6<000-999>0001.img(N))
+#Check if extracted files are already present.
+FIMG_a=(${TMPDIR}/6<->.img(N[1]))
 if [[ -z $FIMG_a ]] ; then
     print "Extracting $OMTB_EXE ..."
     7z x -y -o$TMPDIR ${OMTB_EXE} &>/dev/null || exit 1
-    FIMG_a=(${TMPDIR}/6<000-999>0001.img(N[1]))
+    #Check if extraction files are there
+    FIMG_a=(${TMPDIR}/6<->.img(N[1]))
     [[ -z $FIMG_a ]] && {print "\nERROR: Could not find 6*.img file after extracting $OMTB_EXE" >/dev/stderr ; exit 1}
 fi
 if [[ -f $TYPFILE ]] ; then
