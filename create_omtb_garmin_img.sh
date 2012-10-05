@@ -7,7 +7,7 @@
 # - zsh (obviously)
 # - 7z
 # - mkgmap (preferred) [http://www.mkgmap.org.uk/snapshots/] OR wine
-# - gmt linux version [ http://www.anpo.republika.pl/download.html ] OR wine
+# - gmt Linux version [ http://www.anpo.republika.pl/download.html ] OR wine
 #
 
 setopt extendedglob
@@ -40,7 +40,7 @@ MKGMAP="${MKGMAP[1]}"
 
 if ! [[ -x $GMT_CMD ]] ; then
     if ! [[ -x =wine ]] ; then
-        print "ERROR: You need to either install wine or the gmt linux binary !" > /dev/stderr
+        print "ERROR: You need to either install wine or the gmt Linux binary !" > /dev/stderr
         exit 3    
     fi
     # use supplied gmt.exe with wine
