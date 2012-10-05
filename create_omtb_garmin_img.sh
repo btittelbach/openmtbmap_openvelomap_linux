@@ -1,5 +1,5 @@
 #!/bin/zsh
-# License: Creative Commons Share Alive 3.0
+# License: Creative Commons Share Alike 3.0
 # Copyright: 2012, Bernhard Tittelbach <xro@realraum.at>
 # Thanks to malenki on #osm-de@oftc.net for constructive input and nagging me into making this thing useable in the first place
 
@@ -7,7 +7,7 @@
 # - zsh (obviously)
 # - 7z
 # - mkgmap (preferred) [http://www.mkgmap.org.uk/snapshots/] OR wine
-# - gmt linux version [ http://www.anpo.republika.pl/download.html ] OR wine
+# - gmt Linux version [ http://www.anpo.republika.pl/download.html ] OR wine
 #
 
 setopt extendedglob
@@ -40,7 +40,7 @@ MKGMAP="${MKGMAP[1]}"
 
 if ! [[ -x $GMT_CMD ]] ; then
     if ! [[ -x =wine ]] ; then
-        print "ERROR: You need to either install wine or the gmt linux binary !" > /dev/stderr
+        print "ERROR: You need to either install wine or the gmt Linux binary !" > /dev/stderr
         exit 3    
     fi
     # use supplied gmt.exe with wine
@@ -61,7 +61,7 @@ elif [[ ${OMTB_EXE:t} == velo* ]]; then
     OMTBORVELO=openvelomap
     OMTB_NAME="${OMTB_EXE:t:r:s/velo/}"
 else
-    print "\nERROR: not a openmtbmap.org or openvelomap.org file ?"
+    print "\nERROR: Not a openmtbmap.org or openvelomap.org file ?"
     usage
 fi
 DESC="${OMTBORVELO}_${OMTB_NAME}"
@@ -75,17 +75,17 @@ else
 fi
 
 if [[ -e $DSTFILENAME ]]; then
-    print "\nWarning: the script will create (overwrite) $DSTFILENAME"
+    print "\nWarning: The script will create (overwrite) $DSTFILENAME"
     print "         but $DSTFILENAME already exists."
     read -q "?Continue and overwrite ? [y/N] " || exit 0
     print ""
 fi
 
 if [[ -e $TMPDIR ]] ; then
-    print "\nWarning: the script want's to create directory $TMPDIR, but it already exists."
+    print "\nWarning: The script wants to create directory $TMPDIR, but it already exists."
     if [[ -d $TMPDIR ]] ; then
         print "         If you press [y], $OMTB_EXE will be extracted"
-        print "         to $TMPDIR regardless of it's contents."
+        print "         to $TMPDIR regardless of its contents."
         print "         That's fine if it was created during a previous abortet run of this script."
         print "         Otherwise you should say [n] and move $OMTB_EXE into a clean directory."
         read -q "?Continue ? [y/N] " || exit 0
@@ -98,12 +98,12 @@ else
     mkdir $TMPDIR || exit 1
 fi
 
-FIMG_a=(${TMPDIR}/6<000-999>0000.img(N))
+FIMG_a=(${TMPDIR}/6<000-999>0001.img(N))
 if [[ -z $FIMG_a ]] ; then
     print "Extracting $OMTB_EXE ..."
     7z x -y -o$TMPDIR ${OMTB_EXE} &>/dev/null || exit 1
-    FIMG_a=(${TMPDIR}/6<000-999>0000.img(N[1]))
-    [[ -z $FIMG_a ]] && {print "\nERROR, could not find 6*.img file after extracting $OMTB_EXE" >/dev/stderr ; exit 1}
+    FIMG_a=(${TMPDIR}/6<000-999>0001.img(N[1]))
+    [[ -z $FIMG_a ]] && {print "\nERROR: Could not find 6*.img file after extracting $OMTB_EXE" >/dev/stderr ; exit 1}
 fi
 if [[ -f $TYPFILE ]] ; then
     TYPFILE="${TYPFILE:A}"
@@ -117,18 +117,18 @@ cd $TMPDIR || exit 5
 
 if [[ -z $TYPFILE ]] ; then
     print "\nERROR: TYP-file or -style not found" > /dev/stderr
-    print "       please choose your own file or one of these styles: "  *.(#l)TYP(.N:r)  > /dev/stderr
+    print "       Please choose your own file or one of these styles: "  *.(#l)TYP(.N:r)  > /dev/stderr
     exit 2
 fi
 
-print "using display-TYP-file: $TYPFILE"
+print "Using display-TYP-file: $TYPFILE"
 cp $TYPFILE 01002468.TYP || exit 4
 FID=${${FIMG_a:t}[1][1,4]}
-print using FID $FID
+print "Using FID $FID"
 
 $GMT_CMD -wy $FID 01002468.TYP
 if [[ -n $MKGMAP ]]; then
-    print "using mkgmap, building address search index..."
+    print "Using mkgmap, building address search index..."
     #java -Xmx1000M -jar mkgmap.jar --family-id=$FID --index --description="$DESC" --series-name="$DESC" --family-name="$DESC" --show-profiles=1  --product-id=1 --gmapsupp 6*.img 7*.img 01002468.TYP
     java -Xmx3000M -jar "$MKGMAP" --family-id=$FID --index --description="$DESC" --series-name="$DESC" --family-name="$DESC" --show-profiles=1  --product-id=1 --gmapsupp [67]*.img 01002468.TYP || exit 7
     mv (#i)gmapsupp.img "${DSTFILENAME}" || exit 7
