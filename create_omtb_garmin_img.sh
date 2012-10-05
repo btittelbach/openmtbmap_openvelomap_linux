@@ -82,10 +82,10 @@ if [[ -e $DSTFILENAME ]]; then
 fi
 
 if [[ -e $TMPDIR ]] ; then
-    print "\nWarning: the script want's to create directory $TMPDIR, but it already exists."
+    print "\nWarning: the script wants to create directory $TMPDIR, but it already exists."
     if [[ -d $TMPDIR ]] ; then
         print "         If you press [y], $OMTB_EXE will be extracted"
-        print "         to $TMPDIR regardless of it's contents."
+        print "         to $TMPDIR regardless of its contents."
         print "         That's fine if it was created during a previous abortet run of this script."
         print "         Otherwise you should say [n] and move $OMTB_EXE into a clean directory."
         read -q "?Continue ? [y/N] " || exit 0
