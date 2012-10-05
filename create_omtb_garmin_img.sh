@@ -98,11 +98,11 @@ else
     mkdir $TMPDIR || exit 1
 fi
 
-FIMG_a=(${TMPDIR}/6<000-999>0000.img(N))
+FIMG_a=(${TMPDIR}/6<000-999>0001.img(N))
 if [[ -z $FIMG_a ]] ; then
     print "Extracting $OMTB_EXE ..."
     7z x -y -o$TMPDIR ${OMTB_EXE} &>/dev/null || exit 1
-    FIMG_a=(${TMPDIR}/6<000-999>0000.img(N[1]))
+    FIMG_a=(${TMPDIR}/6<000-999>0001.img(N[1]))
     [[ -z $FIMG_a ]] && {print "\nERROR: Could not find 6*.img file after extracting $OMTB_EXE" >/dev/stderr ; exit 1}
 fi
 if [[ -f $TYPFILE ]] ; then
