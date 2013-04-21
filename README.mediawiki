@@ -10,12 +10,12 @@ __NOTOC__
 
 you can obtain mkgmap with your package manager or from http://www.mkgmap.org.uk/snapshots/
 
-gmt linux version can be downloaded from http://www.anpo.republika.pl/download.html
+gmt linux version can be downloaded from http://www.gmaptool.eu/en/content/gmaptool
 
 ==== Installation of required files on Debian/Ubuntu ====
 
   sudo apt-get install zsh 7z
-  wget http://www.anpo.republika.pl/files/lgmt07158.zip
+  wget http://www.gmaptool.eu/en/system/files/lgmt08067.zip
   unzip lgmt07158.zip gmt
   sudo mv gmt /usr/local/bin/
 
@@ -24,7 +24,7 @@ also, get newest mkgmap from http://www.mkgmap.org.uk/snapshots/ and install (ak
 ==== Installation of required files on Gentoo ====
 
   emerge zsh p7zip mkgmap
-  wget http://www.anpo.republika.pl/files/lgmt07158.zip
+  wget http://www.gmaptool.eu/en/system/files/lgmt08067.zip
   unzip lgmt07158.zip gmt
   sudo mv gmt /usr/local/bin/
 
