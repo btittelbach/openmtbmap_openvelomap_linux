@@ -17,17 +17,25 @@ SCRIPT_NAME=${0:t}
 usage()
 {
     print "\nUsage: $SCRIPT_NAME [options] <mtb*.exe|velo*.exe> <TYP-file or TYP-style>" > /dev/stderr
-    print "     as TYP-style you can choose:" > /dev/stderr
-    print "     clas: classic layout - optimized for Vista/Legend series" > /dev/stderr
-    print "     thin: thinner tracks and pathes - optimized for Gpsmap60/76 series" > /dev/stderr
-    print "     wide: high contrast layout, like classic but with white forest - optimized for Oregon/Colorado dull displays" > /dev/stderr
-    print "     hike: like classic layout - but optimized for hiking (does not show mtb/bicycle informations)" > /dev/stderr
-    print "     easy: similar to classic layout - but focussed on easy readability hence not showing mtb/bicycle information except routes" > /dev/stderr
-    print "     velo: (comes with velomap files) Layout optimized for small GPS screen" > /dev/stderr
-    print "     or give the path to your own .TYP style file" > /dev/stderr
+    print "   as TYP-style you can choose:" > /dev/stderr
+    if [[ $OMTBORVELO != openvelomap ]]; then
+    print "   For OpenMTB-maps:" > /dev/stderr
+    print "     clas: Classic layout - optimized for Vista/Legend series." > /dev/stderr
+    print "     thin: Thinner tracks and pathes - optimized for Gpsmap60/76 series." > /dev/stderr
+    print "     wide: High contrast layout, like classic but with white forest - optimized for Oregon/Colorado displays." > /dev/stderr
+    print "     hike: Like classic layout - but optimized for hiking (does not show mtb/bicycle informations)." > /dev/stderr
+    print "     easy: Similar to classic layout - focused on easy readability, not showing mtb/bicycle information except routes." > /dev/stderr
+    fi
+    if [[ $OMTBORVELO != openmtbmap ]]; then
+    print "   For OpenVelo-maps:" > /dev/stderr
+    print "     velo: Layout optimized for small GPS screen" > /dev/stderr
+    print "     velw: Wide layout optimized for high DPI screens like Oregon" > /dev/stderr
+    print "     race: Clean layout for road biking. No buildings or features." > /dev/stderr
+    fi
+    print "   or give the path to your own .TYP style file" > /dev/stderr
     print "\nOptions:" > /dev/stderr
-    print "     -m <path/to/mkgmap.jar>" > /dev/stderr
-    print "     -o <path/to/outputdir>\n" > /dev/stderr
+    print "   -m <path/to/mkgmap.jar>" > /dev/stderr
+    print "   -o <path/to/outputdir>\n" > /dev/stderr
     exit 1
     # descriptions taken from openmtbmap.org  batch files
 }
@@ -49,11 +57,9 @@ if ! [[ -x $GMT_CMD ]] ; then
 fi
 
 if ! [[ -x =7z ]]; then
-    print "\nERROR: 7z is not installed, but needed to extract openmtbmap downloads !"
+    print "\nERROR: 7z is not installed, but needed to extract openmtbmap downloads !" > /dev/stderr
     exit 3
 fi
-
-[[ -z $TYPFILE || ! -f $OMTB_EXE ]] && usage
 
 if [[ ${OMTB_EXE:t} == mtb* ]]; then
     OMTBORVELO=openmtbmap
@@ -61,10 +67,13 @@ if [[ ${OMTB_EXE:t} == mtb* ]]; then
 elif [[ ${OMTB_EXE:t} == velo* ]]; then
     OMTBORVELO=openvelomap
     OMTB_NAME="${OMTB_EXE:t:r:s/velo/}"
-else
-    print "\nERROR: Not a openmtbmap.org or openvelomap.org file ?"
+elif [[ -n ${OMTB_EXE:t} ]]; then
+    print "\nERROR: Not a openmtbmap.org or openvelomap.org file ?" > /dev/stderr
     usage
 fi
+
+[[ -z $TYPFILE || ! -f $OMTB_EXE ]] && usage
+
 DESC="${OMTBORVELO}_${OMTB_NAME}"
 if [[ -d ${ARGS_A[-o]} ]]; then
     DSTFILENAME="${ARGS_A[-o]:A}/${DESC}.img"
