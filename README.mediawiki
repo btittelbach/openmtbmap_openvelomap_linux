@@ -27,7 +27,7 @@ also, get newest mkgmap from http://www.mkgmap.org.uk/snapshots/ and install (ak
   wget http://www.gmaptool.eu/en/system/files/lgmt08067.zip
   unzip lgmt07158.zip gmt
   sudo mv gmt /usr/local/bin/
-  
+
 ==== Installation of required files on openSUSE ====  
 
   add GEO-repo from opensuse's open build service according to your version
@@ -51,6 +51,3 @@ also, get newest mkgmap from http://www.mkgmap.org.uk/snapshots/ and install (ak
        easy: similar to classic layout - but focussed on easy readability hence not showing mtb/bicycle information except routes
        velo: (comes with velomap files) Layout optimized for small GPS screen
        or give the path to your own .TYP style file
-       
-       
-
