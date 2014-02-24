@@ -28,6 +28,17 @@ also, get newest mkgmap from http://www.mkgmap.org.uk/snapshots/ and install (ak
   unzip lgmt07158.zip gmt
   sudo mv gmt /usr/local/bin/
 
+==== Installation of required files on openSUSE ====  
+
+  add GEO-repo from opensuse's open build service according to your version
+  http://download.opensuse.org/repositories/Application:/Geo/
+  e.g. http://download.opensuse.org/repositories/Application:/Geo/ for openSUSE 13.1
+  Using YaST - "Software Management" to search for and install GMT, mkgmap and p7zip
+  
+  Alternativly use the following commands on the command line
+  zypper ar http://download.opensuse.org/repositories/Application:/Geo/openSUSE_13.1/ GEO
+  zypper ref
+  zypper in p7zip mkgmap GMT
 
 === Usage ===
 
@@ -40,6 +51,3 @@ also, get newest mkgmap from http://www.mkgmap.org.uk/snapshots/ and install (ak
        easy: similar to classic layout - but focussed on easy readability hence not showing mtb/bicycle information except routes
        velo: (comes with velomap files) Layout optimized for small GPS screen
        or give the path to your own .TYP style file
-       
-       
-
