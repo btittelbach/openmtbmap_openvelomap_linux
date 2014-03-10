@@ -7,8 +7,8 @@
 # Required software:
 # - zsh (obviously)
 # - 7z
-# - mkgmap (preferred) [http://www.mkgmap.org.uk/snapshots/] OR wine
-# - gmt Linux version [ http://www.anpo.republika.pl/download.html ] OR wine
+# - mkgmap (preferred) [http://www.mkgmap.org.uk/download/mkgmap.html] OR wine
+# - gmt Linux version [ http://www.gmaptool.eu/pl/content/wersja-dla-linuksa ] OR wine
 #
 
 setopt extendedglob
