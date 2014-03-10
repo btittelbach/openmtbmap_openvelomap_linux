@@ -6,7 +6,7 @@
 
 # Required software:
 # - zsh (obviously)
-# - 7z
+# - 7z  (debian/ubuntu: apt-get install p7zip-full)
 # - mkgmap (preferred) [http://www.mkgmap.org.uk/download/mkgmap.html] OR wine
 # - gmt Linux version [ http://www.gmaptool.eu/pl/content/wersja-dla-linuksa ] OR wine
 #
