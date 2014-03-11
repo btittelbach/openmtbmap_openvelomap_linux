@@ -74,7 +74,7 @@ fi
 
 [[ -z $TYPFILE || ! -f $OMTB_EXE ]] && usage
 
-DESC="${OMTBORVELO}_${OMTB_NAME}"
+DESC="${OMTBORVELO}_${OMTB_NAME}_${TYPFILE}"
 if [[ -d ${ARGS_A[-o]} ]]; then
     DSTFILENAME="${ARGS_A[-o]:A}/${DESC}.img"
     TMPDIR=${ARGS_A[-o]:A}/OMTB_tmp
