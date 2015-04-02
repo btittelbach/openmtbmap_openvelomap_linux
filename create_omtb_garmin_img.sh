@@ -43,7 +43,7 @@ usage()
 zparseopts -A ARGS_A -D -E -- "m:" "o:"
 OMTB_EXE="$1"
 TYPFILE="$2"
-GMT_CMD==gmt
+GMT_CMD="$(which gmt)"
 MKGMAP=( ${ARGS_A[-m]}(.N,@-.) /usr/share/mkgmap/mkgmap.jar(.N,@-.) /usr/local/share/mkgmap/mkgmap.jar(.N,@-.) /usr/share/java/mkgmap.jar (.N,@-.) ${^path}/mkgmap.jar(.N,@-.) )
 MKGMAP="${MKGMAP[1]}"
 
