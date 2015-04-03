@@ -42,12 +42,19 @@ also, get newest mkgmap from http://www.mkgmap.org.uk/snapshots/ and install (ak
 
 === Usage ===
 
- Usage: create_omtb_garmin_img.sh <mtb*.exe|velo*.exe> <TYP-file or TYP-type> [path/to/mkgmap.jar]
-       as TYP-type you can choose:
-       clas: classic layout - optimized for Vista/Legend series
-       thin: thinner tracks and pathes - optimized for Gpsmap60/76 series
-       wide: high contrast layout, like classic but with white forest - optimized for Oregon/Colorado dull displays
-       hike: like classic layout - but optimized for hiking (does not show mtb/bicycle informations)
-       easy: similar to classic layout - but focussed on easy readability hence not showing mtb/bicycle information except routes
-       velo: (comes with velomap files) Layout optimized for small GPS screen
-       or give the path to your own .TYP style file
+  Usage: create_omtb_garmin_img.sh [options] <mtb*.exe|velo*.exe> <TYP-file or TYP-style>
+     as TYP-style you can choose:
+     For OpenMTB-maps:
+       clas: Classic layout - optimized for Vista/Legend series.
+       thin: Thinner tracks and pathes - optimized for Gpsmap60/76 series.
+       wide: High contrast layout, like classic but with white forest - optimized for Oregon/Colorado displays.
+       hike: Like classic layout - but optimized for hiking (does not show mtb/bicycle informations).
+       easy: Similar to classic layout - focused on easy readability, not showing mtb/bicycle information except routes.
+     For OpenVelo-maps:
+       velo: Layout optimized for small GPS screen
+       velw: Wide layout optimized for high DPI screens like Oregon
+       race: Clean layout for road biking. No buildings or features.
+     or give the path to your own .TYP style file
+  Options:
+     -m <path/to/mkgmap.jar>
+     -o <path/to/outputdir>
