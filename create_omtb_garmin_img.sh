@@ -45,6 +45,19 @@ zparseopts -A ARGS_A -D -E -- "g:" "m:" "o:"
 OMTB_EXE="$1"
 TYPFILE="$2"
 
+[[ -z $TYPFILE || ! -f $OMTB_EXE ]] && usage
+
+if [[ ${OMTB_EXE:t} == mtb* ]]; then
+    OMTBORVELO=openmtbmap
+    OMTB_NAME="${OMTB_EXE:t:r:s/mtb/}"
+elif [[ ${OMTB_EXE:t} == velo* ]]; then
+    OMTBORVELO=openvelomap
+    OMTB_NAME="${OMTB_EXE:t:r:s/velo/}"
+elif [[ -n ${OMTB_EXE:t} ]]; then
+    print "\nERROR: Not a openmtbmap.org or openvelomap.org file ?" > /dev/stderr
+    usage
+fi
+
 GMT_CMD=( ${ARGS_A[-g]}(.N,@-.) ${^path}/gmt(.N,@-.) )
 GMT_CMD="${GMT_CMD[1]}"
 
@@ -69,19 +82,6 @@ if ! [[ -x =7z ]]; then
     print "\nERROR: 7z is not installed, but needed to extract openmtbmap downloads !" > /dev/stderr
     exit 3
 fi
-
-if [[ ${OMTB_EXE:t} == mtb* ]]; then
-    OMTBORVELO=openmtbmap
-    OMTB_NAME="${OMTB_EXE:t:r:s/mtb/}"
-elif [[ ${OMTB_EXE:t} == velo* ]]; then
-    OMTBORVELO=openvelomap
-    OMTB_NAME="${OMTB_EXE:t:r:s/velo/}"
-elif [[ -n ${OMTB_EXE:t} ]]; then
-    print "\nERROR: Not a openmtbmap.org or openvelomap.org file ?" > /dev/stderr
-    usage
-fi
-
-[[ -z $TYPFILE || ! -f $OMTB_EXE ]] && usage
 
 DESC="${OMTBORVELO}_${OMTB_NAME}"
 if [[ -d ${ARGS_A[-o]} ]]; then
