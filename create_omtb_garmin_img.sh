@@ -69,8 +69,7 @@ if ! [[ -x "$GMT_CMD" ]] ; then
         print "ERROR: You need to either install wine or the gmt Linux binary !" > /dev/stderr
         exit 3    
     elif ! [[ -f gmt.exe ]]; then
-        print "ERROR: gmt.exe for usage with wine not found. Please place it in the" > /dev/stderr
-        print "current directory." > /dev/stderr
+        print "ERROR: gmt.exe for usage with wine not found. Please place it in the current directory." > /dev/stderr
         exit 3
     fi
 
