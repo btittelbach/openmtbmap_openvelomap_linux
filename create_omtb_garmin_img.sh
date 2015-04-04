@@ -64,10 +64,10 @@ elif [[ -n ${OMTB_EXE:t} ]]; then
 fi
 
 GMT_CMD=( ${ARGS_A[-g]}(.N,@-.) ${^path}/gmt(.N,@-.) )
-GMT_CMD="${GMT_CMD[1]}"
+GMT_CMD="${GMT_CMD[1]:a}"
 
 MKGMAP=( ${ARGS_A[-m]}(.N,@-.) /usr/share/mkgmap/mkgmap.jar(.N,@-.) /usr/local/share/mkgmap/mkgmap.jar(.N,@-.) /usr/share/java/mkgmap.jar(.N,@-.) /usr/share/java/mkgmap/mkgmap.jar(.N,@-.) ${^path}/mkgmap.jar(.N,@-.) )
-MKGMAP="${MKGMAP[1]}"
+MKGMAP="${MKGMAP[1]:a}"
 
 if ! [[ -x "$GMT_CMD" ]] ; then
     if ! [[ -x =wine ]] ; then
@@ -79,7 +79,7 @@ if ! [[ -x "$GMT_CMD" ]] ; then
     fi
 
     # use supplied gmt.exe with wine
-    GMT_CMD="wine ./gmt.exe"
+    GMT_CMD="wine ${PWD}/gmt.exe"
 fi
 
 if ! [[ -x =7z ]]; then
