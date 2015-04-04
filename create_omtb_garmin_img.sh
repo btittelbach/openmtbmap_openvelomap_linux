@@ -45,7 +45,12 @@ zparseopts -A ARGS_A -D -E -- "g:" "m:" "o:"
 OMTB_EXE="$1"
 TYPFILE="$2"
 
-[[ -z $TYPFILE || ! -f $OMTB_EXE ]] && usage
+if [ $# -lt 2 ]; then
+    usage
+elif [ ! -f "$OMTB_EXE" ]; then
+    echo "ERROR: Input map file does not exist (or is not a file)!" > /dev/stderr
+    exit 2
+fi
 
 if [[ ${OMTB_EXE:t} == mtb* ]]; then
     OMTBORVELO=openmtbmap
