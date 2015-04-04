@@ -34,16 +34,20 @@ usage()
     fi
     print "   or give the path to your own .TYP style file" > /dev/stderr
     print "\nOptions:" > /dev/stderr
+    print "   -g <path/to/gmt>" > /dev/stderr
     print "   -m <path/to/mkgmap.jar>" > /dev/stderr
     print "   -o <path/to/outputdir>\n" > /dev/stderr
     exit 1
     # descriptions taken from openmtbmap.org  batch files
 }
 
-zparseopts -A ARGS_A -D -E -- "m:" "o:"
+zparseopts -A ARGS_A -D -E -- "g:" "m:" "o:"
 OMTB_EXE="$1"
 TYPFILE="$2"
-GMT_CMD==gmt
+
+GMT_CMD=( ${ARGS_A[-g]}(.N,@-.) ${^path}/gmt(.N,@-.) )
+GMT_CMD="${GMT_CMD[1]}"
+
 MKGMAP=( ${ARGS_A[-m]}(.N,@-.) /usr/share/mkgmap/mkgmap.jar(.N,@-.) /usr/local/share/mkgmap/mkgmap.jar(.N,@-.) /usr/share/java/mkgmap.jar (.N,@-.) ${^path}/mkgmap.jar(.N,@-.) )
 MKGMAP="${MKGMAP[1]}"
 
