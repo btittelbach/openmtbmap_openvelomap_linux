@@ -51,11 +51,16 @@ GMT_CMD="${GMT_CMD[1]}"
 MKGMAP=( ${ARGS_A[-m]}(.N,@-.) /usr/share/mkgmap/mkgmap.jar(.N,@-.) /usr/local/share/mkgmap/mkgmap.jar(.N,@-.) /usr/share/java/mkgmap.jar (.N,@-.) ${^path}/mkgmap.jar(.N,@-.) )
 MKGMAP="${MKGMAP[1]}"
 
-if ! [[ -x $GMT_CMD ]] ; then
+if ! [[ -x "$GMT_CMD" ]] ; then
     if ! [[ -x =wine ]] ; then
         print "ERROR: You need to either install wine or the gmt Linux binary !" > /dev/stderr
         exit 3    
+    elif ! [[ -f gmt.exe ]]; then
+        print "ERROR: gmt.exe for usage with wine not found. Please place it in the" > /dev/stderr
+        print "current directory." > /dev/stderr
+        exit 3
     fi
+
     # use supplied gmt.exe with wine
     GMT_CMD="wine ./gmt.exe"
 fi
