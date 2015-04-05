@@ -63,24 +63,25 @@ elif [[ -n ${OMTB_EXE:t} ]]; then
     usage
 fi
 
+GMT_WINE=0
 GMT_CMD=( ${ARGS_A[-g]}(.N,@-.) ${^path}/gmt(.N,@-.) )
 GMT_CMD="${GMT_CMD[1]:a}"
 
-MKGMAP=( ${ARGS_A[-m]}(.N,@-.) /usr/share/mkgmap/mkgmap.jar(.N,@-.) /usr/local/share/mkgmap/mkgmap.jar(.N,@-.) /usr/share/java/mkgmap.jar(.N,@-.) /usr/share/java/mkgmap/mkgmap.jar(.N,@-.) ${^path}/mkgmap.jar(.N,@-.) )
-MKGMAP="${MKGMAP[1]:a}"
-
 if ! [[ -x "$GMT_CMD" ]] ; then
     if ! [[ -x =wine ]] ; then
-        print "ERROR: You need to either install wine or the gmt Linux binary !" > /dev/stderr
-        exit 3    
-    elif ! [[ -f gmt.exe ]]; then
-        print "ERROR: gmt.exe for usage with wine not found. Please place it in the current directory." > /dev/stderr
+        print "ERROR: You need to either install wine or the gmt Linux binary!" > /dev/stderr
         exit 3
     fi
 
-    # use supplied gmt.exe with wine
-    GMT_CMD="wine ${PWD}/gmt.exe"
+    # Fall back to using the included gmt.exe with wine.
+    # We check if gmt.exe exists inside the archive after extracting it below.
+    GMT_WINE=1
+    GMT_CMD="wine gmt.exe"
 fi
+
+# NB: If mkgmap is not found, we fall back to using gmt later.
+MKGMAP=( ${ARGS_A[-m]}(.N,@-.) /usr/share/mkgmap/mkgmap.jar(.N,@-.) /usr/local/share/mkgmap/mkgmap.jar(.N,@-.) /usr/share/java/mkgmap.jar(.N,@-.) /usr/share/java/mkgmap/mkgmap.jar(.N,@-.) ${^path}/mkgmap.jar(.N,@-.) )
+MKGMAP="${MKGMAP[1]:a}"
 
 if ! [[ -x =7z ]]; then
     print "\nERROR: 7z is not installed, but needed to extract openmtbmap downloads !" > /dev/stderr
@@ -139,6 +140,12 @@ fi
 
 trap "cd '$PWD'" EXIT
 cd $TMPDIR || exit 5
+
+if [[ $GMT_WINE -eq 1 && ! -f gmt.exe ]]; then
+    print "ERROR: gmt.exe for usage with wine not found in archive ${OMTB_EXE}!" > /dev/stderr
+    print "ERROR: You can work around this by installing the Linux version of gmt." > /dev/stderr
+    exit 3
+fi
 
 if [[ -z $TYPFILE ]] ; then
     print "\nERROR: TYP-file or -style not found" > /dev/stderr
