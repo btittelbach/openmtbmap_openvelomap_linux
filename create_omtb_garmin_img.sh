@@ -158,7 +158,7 @@ cp $TYPFILE 01002468.TYP || exit 4
 FID=${${FIMG_a:t}[1][1,4]}
 print "Using FID $FID"
 
-$GMT_CMD -wy $FID 01002468.TYP
+${=GMT_CMD} -wy $FID 01002468.TYP
 if [[ -n $MKGMAP ]]; then
     print "Using mkgmap, building address search index..."
     #java -Xmx1000M -jar mkgmap.jar --family-id=$FID --index --description="$DESC" --series-name="$DESC" --family-name="$DESC" --show-profiles=1  --product-id=1 --gmapsupp 6*.img 7*.img 01002468.TYP
@@ -166,7 +166,7 @@ if [[ -n $MKGMAP ]]; then
     mv (#i)gmapsupp.img "${DSTFILENAME}" || exit 7
 else
     print "mkgmap not found, using gmt..."
-    $GMT_CMD -j -o "${DSTFILENAME}" -f $FID -m "$DESC" 6*.img 7*.img 01002468.TYP || exit 7
+    ${=GMT_CMD} -j -o "${DSTFILENAME}" -f $FID -m "$DESC" 6*.img 7*.img 01002468.TYP || exit 7
 fi
 rm -R "$TMPDIR"
 print "\nSuccessfully created ${DSTFILENAME}"
