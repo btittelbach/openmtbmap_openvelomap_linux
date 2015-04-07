@@ -34,31 +34,22 @@ usage()
     fi
     print "   or give the path to your own .TYP style file" > /dev/stderr
     print "\nOptions:" > /dev/stderr
+    print "   -g <path/to/gmt>" > /dev/stderr
     print "   -m <path/to/mkgmap.jar>" > /dev/stderr
     print "   -o <path/to/outputdir>\n" > /dev/stderr
     exit 1
     # descriptions taken from openmtbmap.org  batch files
 }
 
-zparseopts -A ARGS_A -D -E -- "m:" "o:"
+zparseopts -A ARGS_A -D -E -- "g:" "m:" "o:"
 OMTB_EXE="$1"
 TYPFILE="$2"
-GMT_CMD==gmt
-MKGMAP=( ${ARGS_A[-m]}(.N,@-.) /usr/share/mkgmap/mkgmap.jar(.N,@-.) /usr/local/share/mkgmap/mkgmap.jar(.N,@-.) /usr/share/java/mkgmap.jar (.N,@-.) ${^path}/mkgmap.jar(.N,@-.) )
-MKGMAP="${MKGMAP[1]}"
 
-if ! [[ -x $GMT_CMD ]] ; then
-    if ! [[ -x =wine ]] ; then
-        print "ERROR: You need to either install wine or the gmt Linux binary !" > /dev/stderr
-        exit 3    
-    fi
-    # use supplied gmt.exe with wine
-    GMT_CMD="wine ./gmt.exe"
-fi
-
-if ! [[ -x =7z ]]; then
-    print "\nERROR: 7z is not installed, but needed to extract openmtbmap downloads !" > /dev/stderr
-    exit 3
+if [ $# -lt 2 ]; then
+    usage
+elif [ ! -f "$OMTB_EXE" ]; then
+    echo "ERROR: Input map file does not exist (or is not a file)!" > /dev/stderr
+    exit 2
 fi
 
 if [[ ${OMTB_EXE:t} == mtb* ]]; then
@@ -72,7 +63,30 @@ elif [[ -n ${OMTB_EXE:t} ]]; then
     usage
 fi
 
-[[ -z $TYPFILE || ! -f $OMTB_EXE ]] && usage
+GMT_WINE=0
+GMT_CMD=( ${ARGS_A[-g]}(.N,@-.) ${^path}/gmt(.N,@-.) )
+GMT_CMD="${GMT_CMD[1]:a}"
+
+if ! [[ -x "$GMT_CMD" ]] ; then
+    if ! [[ -x =wine ]] ; then
+        print "ERROR: You need to either install wine or the gmt Linux binary!" > /dev/stderr
+        exit 3
+    fi
+
+    # Fall back to using the included gmt.exe with wine.
+    # We check if gmt.exe exists inside the archive after extracting it below.
+    GMT_WINE=1
+    GMT_CMD="wine gmt.exe"
+fi
+
+# NB: If mkgmap is not found, we fall back to using gmt later.
+MKGMAP=( ${ARGS_A[-m]}(.N,@-.) /usr/share/mkgmap/mkgmap.jar(.N,@-.) /usr/local/share/mkgmap/mkgmap.jar(.N,@-.) /usr/share/java/mkgmap.jar(.N,@-.) /usr/share/java/mkgmap/mkgmap.jar(.N,@-.) ${^path}/mkgmap.jar(.N,@-.) )
+MKGMAP="${MKGMAP[1]:a}"
+
+if ! [[ -x =7z ]]; then
+    print "\nERROR: 7z is not installed, but needed to extract openmtbmap downloads !" > /dev/stderr
+    exit 3
+fi
 
 DESC="${OMTBORVELO}_${OMTB_NAME}"
 if [[ -d ${ARGS_A[-o]} ]]; then
@@ -127,6 +141,12 @@ fi
 trap "cd '$PWD'" EXIT
 cd $TMPDIR || exit 5
 
+if [[ $GMT_WINE -eq 1 && ! -f gmt.exe ]]; then
+    print "ERROR: gmt.exe for usage with wine not found in archive ${OMTB_EXE}!" > /dev/stderr
+    print "ERROR: You can work around this by installing the Linux version of gmt." > /dev/stderr
+    exit 3
+fi
+
 if [[ -z $TYPFILE ]] ; then
     print "\nERROR: TYP-file or -style not found" > /dev/stderr
     print "       Please choose your own file or one of these styles: "  *.(#l)TYP(.N:r)  > /dev/stderr
@@ -138,7 +158,7 @@ cp $TYPFILE 01002468.TYP || exit 4
 FID=${${FIMG_a:t}[1][1,4]}
 print "Using FID $FID"
 
-$GMT_CMD -wy $FID 01002468.TYP
+${=GMT_CMD} -wy $FID 01002468.TYP
 if [[ -n $MKGMAP ]]; then
     print "Using mkgmap, building address search index..."
     #java -Xmx1000M -jar mkgmap.jar --family-id=$FID --index --description="$DESC" --series-name="$DESC" --family-name="$DESC" --show-profiles=1  --product-id=1 --gmapsupp 6*.img 7*.img 01002468.TYP
@@ -146,7 +166,7 @@ if [[ -n $MKGMAP ]]; then
     mv (#i)gmapsupp.img "${DSTFILENAME}" || exit 7
 else
     print "mkgmap not found, using gmt..."
-    $GMT_CMD -j -o "${DSTFILENAME}" -f $FID -m "$DESC" 6*.img 7*.img 01002468.TYP || exit 7
+    ${=GMT_CMD} -j -o "${DSTFILENAME}" -f $FID -m "$DESC" 6*.img 7*.img 01002468.TYP || exit 7
 fi
 rm -R "$TMPDIR"
 print "\nSuccessfully created ${DSTFILENAME}"

@@ -56,5 +56,6 @@ also, get newest mkgmap from http://www.mkgmap.org.uk/snapshots/ and install (ak
        race: Clean layout for road biking. No buildings or features.
      or give the path to your own .TYP style file
   Options:
+     -g <path/to/gmt>
      -m <path/to/mkgmap.jar>
      -o <path/to/outputdir>
