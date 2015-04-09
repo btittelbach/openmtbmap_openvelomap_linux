@@ -13,30 +13,38 @@
 
 setopt extendedglob
 setopt cshnullglob
+
 SCRIPT_NAME=${0:t}
+
 usage()
 {
-    print "\nUsage: $SCRIPT_NAME [options] <mtb*.exe|velo*.exe> <TYP-file or TYP-style>" > /dev/stderr
-    print "   as TYP-style you can choose:" > /dev/stderr
+    exec >&2
+
+    print "\nUsage: $SCRIPT_NAME [options] <mtb*.exe|velo*.exe> <TYP-file or TYP-style>"
+    print "   as TYP-style you can choose:"
+
     if [[ $OMTBORVELO != openvelomap ]]; then
-    print "   For OpenMTB-maps:" > /dev/stderr
-    print "     clas: Classic layout - optimized for Vista/Legend series." > /dev/stderr
-    print "     thin: Thinner tracks and pathes - optimized for Gpsmap60/76 series." > /dev/stderr
-    print "     wide: High contrast layout, like classic but with white forest - optimized for Oregon/Colorado displays." > /dev/stderr
-    print "     hike: Like classic layout - but optimized for hiking (does not show mtb/bicycle informations)." > /dev/stderr
-    print "     easy: Similar to classic layout - focused on easy readability, not showing mtb/bicycle information except routes." > /dev/stderr
+    print "   For OpenMTB-maps:"
+    print "     clas: Classic layout - optimized for Vista/Legend series."
+    print "     thin: Thinner tracks and pathes - optimized for Gpsmap60/76 series."
+    print "     wide: High contrast layout, like classic but with white forest - optimized for Oregon/Colorado displays."
+    print "     hike: Like classic layout - but optimized for hiking (does not show mtb/bicycle informations)."
+    print "     easy: Similar to classic layout - focused on easy readability, not showing mtb/bicycle information except routes."
     fi
+
     if [[ $OMTBORVELO != openmtbmap ]]; then
-    print "   For OpenVelo-maps:" > /dev/stderr
-    print "     velo: Layout optimized for small GPS screen" > /dev/stderr
-    print "     velw: Wide layout optimized for high DPI screens like Oregon" > /dev/stderr
-    print "     race: Clean layout for road biking. No buildings or features." > /dev/stderr
+    print "   For OpenVelo-maps:"
+    print "     velo: Layout optimized for small GPS screen"
+    print "     velw: Wide layout optimized for high DPI screens like Oregon"
+    print "     race: Clean layout for road biking. No buildings or features."
     fi
-    print "   or give the path to your own .TYP style file" > /dev/stderr
-    print "\nOptions:" > /dev/stderr
-    print "   -g <path/to/gmt>" > /dev/stderr
-    print "   -m <path/to/mkgmap.jar>" > /dev/stderr
-    print "   -o <path/to/outputdir>\n" > /dev/stderr
+
+    print "   or give the path to your own .TYP style file"
+    print "\nOptions:"
+    print "   -g <path/to/gmt>"
+    print "   -m <path/to/mkgmap.jar>"
+    print "   -o <path/to/outputdir>\n"
+
     exit 1
     # descriptions taken from openmtbmap.org  batch files
 }
@@ -48,7 +56,7 @@ TYPFILE="$2"
 if [ $# -lt 2 ]; then
     usage
 elif [ ! -f "$OMTB_EXE" ]; then
-    echo "ERROR: Input map file does not exist (or is not a file)!" > /dev/stderr
+    echo "ERROR: Input map file does not exist (or is not a file)!" >&2
     exit 2
 fi
 
@@ -59,7 +67,7 @@ elif [[ ${OMTB_EXE:t} == velo* ]]; then
     OMTBORVELO=openvelomap
     OMTB_NAME="${OMTB_EXE:t:r:s/velo/}"
 elif [[ -n ${OMTB_EXE:t} ]]; then
-    print "\nERROR: Not a openmtbmap.org or openvelomap.org file ?" > /dev/stderr
+    print "\nERROR: Not a openmtbmap.org or openvelomap.org file ?" >&2
     usage
 fi
 
@@ -69,7 +77,7 @@ GMT_CMD="${GMT_CMD[1]:a}"
 
 if ! [[ -x "$GMT_CMD" ]] ; then
     if ! [[ -x =wine ]] ; then
-        print "ERROR: You need to either install wine or the gmt Linux binary!" > /dev/stderr
+        print "ERROR: You need to either install wine or the gmt Linux binary!" >&2
         exit 3
     fi
 
@@ -84,7 +92,7 @@ MKGMAP=( ${ARGS_A[-m]}(.N,@-.) /usr/share/mkgmap/mkgmap.jar(.N,@-.) /usr/local/s
 MKGMAP="${MKGMAP[1]:a}"
 
 if ! [[ -x =7z ]]; then
-    print "\nERROR: 7z is not installed, but needed to extract openmtbmap downloads !" > /dev/stderr
+    print "\nERROR: 7z is not installed, but needed to extract openmtbmap downloads !" >&2
     exit 3
 fi
 
@@ -129,7 +137,7 @@ if [[ -z $FIMG_a ]] ; then
     7z x -y -o$TMPDIR ${OMTB_EXE} &>/dev/null || exit 1
     #Check if extraction files are there
     FIMG_a=(${TMPDIR}/6<->.img(N[1]))
-    [[ -z $FIMG_a ]] && {print "\nERROR: Could not find 6*.img file after extracting $OMTB_EXE" >/dev/stderr ; exit 1}
+    [[ -z $FIMG_a ]] && {print "\nERROR: Could not find 6*.img file after extracting $OMTB_EXE" >&2 ; exit 1}
 fi
 if [[ -f $TYPFILE ]] ; then
     TYPFILE="${TYPFILE:A}"
@@ -142,14 +150,14 @@ trap "cd '$PWD'" EXIT
 cd $TMPDIR || exit 5
 
 if [[ $GMT_WINE -eq 1 && ! -f gmt.exe ]]; then
-    print "ERROR: gmt.exe for usage with wine not found in archive ${OMTB_EXE}!" > /dev/stderr
-    print "ERROR: You can work around this by installing the Linux version of gmt." > /dev/stderr
+    print "ERROR: gmt.exe for usage with wine not found in archive ${OMTB_EXE}!" >&2
+    print "ERROR: You can work around this by installing the Linux version of gmt." >&2
     exit 3
 fi
 
 if [[ -z $TYPFILE ]] ; then
-    print "\nERROR: TYP-file or -style not found" > /dev/stderr
-    print "       Please choose your own file or one of these styles: "  *.(#l)TYP(.N:r)  > /dev/stderr
+    print "\nERROR: TYP-file or -style not found" >&2
+    print "       Please choose your own file or one of these styles: "  *.(#l)TYP(.N:r)  >&2
     exit 2
 fi
 
