@@ -67,16 +67,19 @@ GMT_WINE=0
 GMT_CMD=( ${ARGS_A[-g]}(.N,@-.) ${^path}/gmt(.N,@-.) )
 GMT_CMD="${GMT_CMD[1]:a}"
 
+WINE_FOUND=no
+WINE_EXE=$(which wine) && WINE_FOUND=yes
 if ! [[ -x "$GMT_CMD" ]] ; then
-    if ! [[ -x =wine ]] ; then
-        print "ERROR: You need to either install wine or the gmt Linux binary!" > /dev/stderr
-        exit 3
+    if [[ $WINE_FOUND != "yes" ]] || ! [[ -x $WINE_EXE ]] ; then
+        #print "ERROR: You need to either install wine or the gmt Linux binary!" > /dev/stderr
+        #exit 3
+        GMT_CMD=""
+    else
+        # Fall back to using the included gmt.exe with wine.
+        # We check if gmt.exe exists inside the archive after extracting it below.
+        GMT_WINE=1
+        GMT_CMD="wine gmt.exe"
     fi
-
-    # Fall back to using the included gmt.exe with wine.
-    # We check if gmt.exe exists inside the archive after extracting it below.
-    GMT_WINE=1
-    GMT_CMD="wine gmt.exe"
 fi
 
 # NB: If mkgmap is not found, we fall back to using gmt later.
@@ -158,7 +161,19 @@ cp $TYPFILE 01002468.TYP || exit 4
 FID=${${FIMG_a:t}[1][1,4]}
 print "Using FID $FID"
 
-${=GMT_CMD} -wy $FID 01002468.TYP
+if [[ -n $GMD_CMD ]]; then
+    ${=GMT_CMD} -wy $FID 01002468.TYP
+else
+    #DIY
+    #This is according to http://pinns.co.uk/osm/typformat.html
+    HIGH_BIT=$[FID/256]
+    LOW_BIT=$[FID%256]
+    HIGH_BIT_STR=$(printf "\\\\x%02x" HIGH_BIT) #create a '\xAA' string (with AA replaced by the actual number)
+    LOW_BIT_STR=$(printf "\\\\x%02x" LOW_BIT)
+    printf "${HIGH_BIT_STR}" | dd of=01002468.TYP bs=1 seek=48 count=1 conv=notrunc &> /dev/null
+    printf "${LOW_BIT_STR}" | dd of=01002468.TYP bs=1 seek=47 count=1 conv=notrunc &> /dev/null
+fi
+
 if [[ -n $MKGMAP ]]; then
     print "Using mkgmap, building address search index..."
     #java -Xmx1000M -jar mkgmap.jar --family-id=$FID --index --description="$DESC" --series-name="$DESC" --family-name="$DESC" --show-profiles=1  --product-id=1 --gmapsupp 6*.img 7*.img 01002468.TYP
@@ -166,6 +181,10 @@ if [[ -n $MKGMAP ]]; then
     mv (#i)gmapsupp.img "${DSTFILENAME}" || exit 7
 else
     print "mkgmap not found, using gmt..."
+    if [[ -z $GMT_CMD ]]; then
+        print "Error: gmt not found either."
+        exit 3
+    fi
     ${=GMT_CMD} -j -o "${DSTFILENAME}" -f $FID -m "$DESC" 6*.img 7*.img 01002468.TYP || exit 7
 fi
 rm -R "$TMPDIR"
