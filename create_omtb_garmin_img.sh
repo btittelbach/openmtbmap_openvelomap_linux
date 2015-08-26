@@ -8,11 +8,13 @@
 # - zsh (obviously)
 # - 7z  (debian/ubuntu: apt-get install p7zip-full)
 # - mkgmap (preferred) [http://www.mkgmap.org.uk/download/mkgmap.html] OR wine
-# - gmt Linux version [ http://www.gmaptool.eu/pl/content/wersja-dla-linuksa ] OR wine
+# - optionally: gmt Linux version [ http://www.gmaptool.eu/pl/content/wersja-dla-linuksa ] OR wine
 #
 
 setopt extendedglob
 setopt cshnullglob
+setopt nonomatch #otherwise =executable will abort script if executable not found
+
 SCRIPT_NAME=${0:t}
 usage()
 {
@@ -41,6 +43,31 @@ usage()
     # descriptions taken from openmtbmap.org  batch files
 }
 
+# convert decimal number to octal number and output as ascii character
+chr ()
+{
+  printf \\$(($1/64*100+$1%64/8*10+$1%8))
+}
+
+# use linux-gmt or wine-gmt or set manually
+# thanks to luhk @ github for pioniering this
+# depends on global variable GMT_CMD
+setFID()
+{
+  local FID=$(($1))
+  local FIDFILE="$2"
+  if [[ -n $GMT_CMD ]]; then
+      ${=GMT_CMD} -wy ${FID} ${FIDFILE}
+  else
+      #DIY
+      #This is adapted from http://pinns.co.uk/osm/typformat.html
+      HIGH_BYTE=$[FID/256]
+      LOW_BYTE=$[FID%256]
+      chr $HIGH_BYTE | dd of=${FIDFILE} bs=1 seek=48 count=1 conv=notrunc &> /dev/null
+      chr $LOW_BYTE | dd of=${FIDFILE} bs=1 seek=47 count=1 conv=notrunc &> /dev/null
+  fi
+}
+
 zparseopts -A ARGS_A -D -E -- "g:" "m:" "o:"
 OMTB_EXE="$1"
 TYPFILE="$2"
@@ -63,24 +90,11 @@ elif [[ -n ${OMTB_EXE:t} ]]; then
     usage
 fi
 
-GMT_WINE=0
 GMT_CMD=( ${ARGS_A[-g]}(.N,@-.) ${^path}/gmt(.N,@-.) )
 GMT_CMD="${GMT_CMD[1]:a}"
-
-WINE_FOUND=no
-WINE_EXE=$(which wine) && WINE_FOUND=yes
-if ! [[ -x "$GMT_CMD" ]] ; then
-    if [[ $WINE_FOUND != "yes" ]] || ! [[ -x $WINE_EXE ]] ; then
-        #print "ERROR: You need to either install wine or the gmt Linux binary!" > /dev/stderr
-        #exit 3
-        GMT_CMD=""
-    else
-        # Fall back to using the included gmt.exe with wine.
-        # We check if gmt.exe exists inside the archive after extracting it below.
-        GMT_WINE=1
-        GMT_CMD="wine gmt.exe"
-    fi
-fi
+# if wine exists, this expands into e.g. /usr/bin/wine, otherwhise it will remain as string =wine
+# advantage over which wine is, that it outputs only one result, namely the executable that a call to wine on the CL would actually use
+WINE_EXE==wine
 
 # NB: If mkgmap is not found, we fall back to using gmt later.
 MKGMAP=( ${ARGS_A[-m]}(.N,@-.) /usr/share/mkgmap/mkgmap.jar(.N,@-.) /usr/local/share/mkgmap/mkgmap.jar(.N,@-.) /usr/share/java/mkgmap.jar(.N,@-.) /usr/share/java/mkgmap/mkgmap.jar(.N,@-.) ${^path}/mkgmap.jar(.N,@-.) )
@@ -91,6 +105,7 @@ if ! [[ -x =7z ]]; then
     exit 3
 fi
 
+
 DESC="${OMTBORVELO}_${OMTB_NAME}"
 if [[ -d ${ARGS_A[-o]} ]]; then
     DSTFILENAME="${ARGS_A[-o]:A}/${DESC}.img"
@@ -100,6 +115,13 @@ else
     TMPDIR=${OMTB_EXE:A:h}/OMTB_tmp
     [[ -n $ARGS_A[-o] ]] && {print "\nWarning: -o given but ${ARGS_A[-o]} is not a directory.\n         Using ${OMTB_EXE:A:h} instead..\n"}
 fi
+
+if ! [[ ( -n $MKGMAP && -x =java ) || -x $WINE_EXE ]]; then
+    print "\nERROR: either mkgmap (+java) or wine are required!" > /dev/stderr
+    exit 4
+fi
+
+
 
 if [[ -e $DSTFILENAME ]]; then
     print "\nWarning: The script will create (overwrite) $DSTFILENAME"
@@ -144,12 +166,6 @@ fi
 trap "cd '$PWD'" EXIT
 cd $TMPDIR || exit 5
 
-if [[ $GMT_WINE -eq 1 && ! -f gmt.exe ]]; then
-    print "ERROR: gmt.exe for usage with wine not found in archive ${OMTB_EXE}!" > /dev/stderr
-    print "ERROR: You can work around this by installing the Linux version of gmt." > /dev/stderr
-    exit 3
-fi
-
 if [[ -z $TYPFILE ]] ; then
     print "\nERROR: TYP-file or -style not found" > /dev/stderr
     print "       Please choose your own file or one of these styles: "  *.(#l)TYP(.N:r)  > /dev/stderr
@@ -161,18 +177,16 @@ cp $TYPFILE 01002468.TYP || exit 4
 FID=${${FIMG_a:t}[1][1,4]}
 print "Using FID $FID"
 
-if [[ -n $GMD_CMD ]]; then
-    ${=GMT_CMD} -wy $FID 01002468.TYP
-else
-    #DIY
-    #This is according to http://pinns.co.uk/osm/typformat.html
-    HIGH_BIT=$[FID/256]
-    LOW_BIT=$[FID%256]
-    HIGH_BIT_STR=$(printf "\\\\x%02x" HIGH_BIT) #create a '\xAA' string (with AA replaced by the actual number)
-    LOW_BIT_STR=$(printf "\\\\x%02x" LOW_BIT)
-    printf "${HIGH_BIT_STR}" | dd of=01002468.TYP bs=1 seek=48 count=1 conv=notrunc &> /dev/null
-    printf "${LOW_BIT_STR}" | dd of=01002468.TYP bs=1 seek=47 count=1 conv=notrunc &> /dev/null
+if ! [[ -x "$GMT_CMD" ]] ; then
+    #linux gmx not found, looking for alternatives
+    if [[ -x $WINE_EXE && -f gmt.exe ]] ; then
+        GMT_CMD="wine gmt.exe"
+    else
+        GMT_CMD=""
+    fi
 fi
+
+setFID $FID 01002468.TYP
 
 if [[ -n $MKGMAP ]]; then
     print "Using mkgmap, building address search index..."

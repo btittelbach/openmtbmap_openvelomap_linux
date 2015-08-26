@@ -6,7 +6,6 @@ __NOTOC__
 * zsh
 * 7z
 * mkgmap OR wine
-* gmt linux version OR wine
 
 you can obtain mkgmap with your package manager or from http://www.mkgmap.org.uk/snapshots/
 
