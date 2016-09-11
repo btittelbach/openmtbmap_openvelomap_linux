@@ -151,7 +151,7 @@ fi
 FIMG_a=(${TMPDIR}/6<->.img(N[1]))
 if [[ -z $FIMG_a ]] ; then
     print "Extracting $OMTB_EXE ..."
-    7z x -y -o$TMPDIR ${OMTB_EXE} &>/dev/null || exit 1
+    7z e -y -o$TMPDIR ${OMTB_EXE} &>/dev/null || exit 1
     #Check if extraction files are there
     FIMG_a=(${TMPDIR}/6<->.img(N[1]))
     [[ -z $FIMG_a ]] && {print "\nERROR: Could not find 6*.img file after extracting $OMTB_EXE" >/dev/stderr ; exit 1}
