@@ -13,7 +13,7 @@ gmt linux version can be downloaded from http://www.gmaptool.eu/en/content/gmapt
 
 ==== Installation of required files on Debian/Ubuntu ====
 
-  sudo apt-get install zsh 7z
+  sudo apt-get install zsh p7zip-full
   wget http://www.gmaptool.eu/en/system/files/lgmt08067.zip
   unzip lgmt07158.zip gmt
   sudo mv gmt /usr/local/bin/
