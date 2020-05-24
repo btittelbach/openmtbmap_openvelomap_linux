@@ -14,8 +14,8 @@ gmt linux version can be downloaded from http://www.gmaptool.eu/en/content/gmapt
 ==== Installation of required files on Debian/Ubuntu ====
 
   sudo apt-get install zsh p7zip-full
-  wget http://www.gmaptool.eu/en/system/files/lgmt08067.zip
-  unzip lgmt07158.zip gmt
+  wget http://www.gmaptool.eu/sites/default/files/lgmt08220.zip
+  unzip lgmt08220.zip gmt
   sudo mv gmt /usr/local/bin/
 
 also, get newest mkgmap from http://www.mkgmap.org.uk/snapshots/ and install (aka copy) it to e.g. /usr/local/share/mkgmap/
@@ -23,8 +23,8 @@ also, get newest mkgmap from http://www.mkgmap.org.uk/snapshots/ and install (ak
 ==== Installation of required files on Gentoo ====
 
   emerge zsh p7zip mkgmap
-  wget http://www.gmaptool.eu/en/system/files/lgmt08067.zip
-  unzip lgmt07158.zip gmt
+  wget http://www.gmaptool.eu/sites/default/files/lgmt08220.zip
+  unzip lgmt08220.zip gmt
   sudo mv gmt /usr/local/bin/
 
 ==== Installation of required files on openSUSE ====  
