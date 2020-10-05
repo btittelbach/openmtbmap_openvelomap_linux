@@ -38,7 +38,8 @@ usage()
     print "\nOptions:" > /dev/stderr
     print "   -g <path/to/gmt>" > /dev/stderr
     print "   -m <path/to/mkgmap.jar>" > /dev/stderr
-    print "   -o <path/to/outputdir>\n" > /dev/stderr
+    print "   -o <path/to/outputdir>" > /dev/stderr
+    print "   --no-contours\n" > /dev/stderr
     exit 1
     # descriptions taken from openmtbmap.org  batch files
 }
@@ -68,7 +69,7 @@ setFID()
   fi
 }
 
-zparseopts -A ARGS_A -D -E -- "g:" "m:" "o:"
+zparseopts -A ARGS_A -D -E -- "g:" "m:" "o:" "-no-contours"
 OMTB_EXE="$1"
 TYPFILE="$2"
 
@@ -190,12 +191,17 @@ setFID $FID 01002468.TYP
 
 if [[ -n $MKGMAP ]]; then
     print "Using mkgmap, building address search index..."
-    #java -Xmx1000M -jar mkgmap.jar --family-id=$FID --index --description="$DESC" --series-name="$DESC" --family-name="$DESC" --show-profiles=1  --product-id=1 --gmapsupp 6*.img 7*.img 01002468.TYP
     if [[ $(grep MemTotal: /proc/meminfo | awk '{print $2}') -gt $((1024*1024*3)) ]]; then
-      java -Xmx3000M -jar "$MKGMAP" --family-id=$FID --index --description="$DESC" --series-name="$DESC" --family-name="$DESC" --show-profiles=1  --product-id=1 --gmapsupp [67]*.img 01002468.TYP || exit 7
+        JAVA_OPTS="-Xmx3000M"
     else
-      java -Xmx1000M -jar "$MKGMAP" --family-id=$FID --index --description="$DESC" --series-name="$DESC" --family-name="$DESC" --show-profiles=1  --product-id=1 --gmapsupp [67]*.img 01002468.TYP || exit 7
+        JAVA_OPTS="-Xmx1000M"
     fi
+    if [[ -n ${ARGS_A[--no-contours]+1} ]]; then
+        IMGS=(6*.img)
+    else
+        IMGS=([67]*.img)
+    fi
+    java $JAVA_OPTS -jar "$MKGMAP" --family-id=$FID --index --description="$DESC" --series-name="$DESC" --family-name="$DESC" --show-profiles=1  --product-id=1 --gmapsupp $IMGS 01002468.TYP || exit 7
     mv (#i)gmapsupp.img "${DSTFILENAME}" || exit 7
 else
     print "mkgmap not found, using gmt..."
