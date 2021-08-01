@@ -38,6 +38,17 @@ also, get newest mkgmap from http://www.mkgmap.org.uk/snapshots/ and install (ak
   zypper ar http://download.opensuse.org/repositories/Application:/Geo/openSUSE_13.1/ GEO
   zypper ref
   zypper in p7zip mkgmap GMT
+  
+==== Installation with Singularity ====
+
+Alternatively, you can build a Singularity container with all the dependencies:
+
+  singularity build --fakeroot create_omtb_garmin_img.sif Singularity
+
+To execute the script from within the container:
+   
+  singularity run create_omtb_garmin_img.sif \
+       create_omtb_garmin_img.sh [options] <mtb*.exe|velo*.exe> <TYP-file or TYP-style>
 
 === Usage ===
 
